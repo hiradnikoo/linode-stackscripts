@@ -1,5 +1,7 @@
 #!/bin/bash
 # 
+# github: https://github.com/hiradnikoo/linode-stackscripts
+# 
 # StackScript for Psiphon Conduit Manager
 #
 # <UDF name="MAX_CLIENTS" Label="Max Clients" default="200" example="Maximum concurrent proxy clients per container (1-1000)" />
