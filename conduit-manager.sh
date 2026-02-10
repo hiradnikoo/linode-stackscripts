@@ -8,6 +8,7 @@
 # <UDF name="Use_Telegram" Label="Enable Telegram Notifications?" oneof="No,Yes" default="Yes" />
 # <UDF name="TELEGRAM_BOT_TOKEN" Label="Telegram Bot Token" default="" example="123456789:ABC-DEF1234ghIkl-zyx57W2v1u" />
 # <UDF name="TELEGRAM_CHAT_ID" Label="Telegram Chat ID" default="" example="123456789" />
+# <UDF name="TELEGRAM_SERVER_LABEL" Label="Telegram Server Label" default="Conduit Manager"/>
 
 # Log all output to a file for debugging
 exec > >(tee -i /var/log/stackscript.log)
@@ -91,7 +92,7 @@ TELEGRAM_ENABLED=true
 TELEGRAM_ALERTS_ENABLED=true
 TELEGRAM_DAILY_SUMMARY=true
 TELEGRAM_WEEKLY_SUMMARY=true
-TELEGRAM_SERVER_LABEL=""
+TELEGRAM_SERVER_LABEL="$TELEGRAM_SERVER_LABEL"
 TELEGRAM_START_HOUR=0
 EOF
     chmod 600 /opt/conduit/settings.conf
