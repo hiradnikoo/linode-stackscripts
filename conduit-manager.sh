@@ -9,7 +9,7 @@
 # <UDF name="CONTAINER_COUNT" Label="Container Count" default="8" example="Number of containers to run (1-32)" />
 # <UDF name="Use_Telegram" Label="Enable Telegram Notifications?" oneof="No,Yes" default="Yes" />
 # <UDF name="TELEGRAM_BOT_TOKEN" Label="Telegram Bot Token" default="" example="123456789:ABC-DEF1234ghIkl-zyx57W2v1u" />
-# <UDF name="TELEGRAM_CHAT_ID" Label="Telegram Chat ID" default="" example="123456789" />
+# <UDF name="TELEGRAM_CHAT_ID" Label="Telegram Chat ID" default="" example="Find the value from id inside chat object from https://api.telegram.org/{TELEGRAM_BOT_TOKEN}/getUpdates" />
 # <UDF name="TELEGRAM_SERVER_LABEL" Label="Telegram Server Label" default="Conduit Manager"/>
 
 # Log all output to a file for debugging
