@@ -56,6 +56,9 @@ sed -i 's/"$INSTALL_DIR\/conduit" menu/true # Menu disabled by StackScript/' con
 export MAX_CLIENTS="${MAX_CLIENTS:-200}"
 export BANDWIDTH="${BANDWIDTH:-5}"
 export CONTAINER_COUNT="${CONTAINER_COUNT:-1}"
+export TELEGRAM_BOT_TOKEN="${TELEGRAM_BOT_TOKEN:-}"
+export TELEGRAM_CHAT_ID="${TELEGRAM_CHAT_ID:-}"
+export TELEGRAM_SERVER_LABEL="${TELEGRAM_SERVER_LABEL:-}"
 
 echo "Configuration:"
 echo "  MAX_CLIENTS: $MAX_CLIENTS"
