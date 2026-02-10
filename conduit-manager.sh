@@ -5,9 +5,9 @@
 # StackScript for Psiphon Conduit Manager
 #
 # <UDF name="MAX_CLIENTS" Label="Max Clients" default="200" example="Maximum concurrent proxy clients per container (1-1000)" />
-# <UDF name="BANDWIDTH" Label="Bandwidth (Mbps)" default="-1" example="Bandwidth limit per peer in Mbps (1-40, or -1 for unlimited)" />
+# <UDF name="BANDWIDTH" Label="Bandwidth (Mbps)" default="10" example="Bandwidth limit per peer in Mbps (1-40, or -1 for unlimited)" />
 # <UDF name="CONTAINER_COUNT" Label="Container Count" default="8" example="Number of containers to run (1-32)" />
-# <UDF name="Use_Telegram" Label="Enable Telegram Notifications?" oneof="No,Yes" default="Yes" />
+# <UDF name="USE_TELEGRAM" Label="Enable Telegram Notifications?" oneof="No,Yes" default="No" />
 # <UDF name="TELEGRAM_BOT_TOKEN" Label="Telegram Bot Token" default="" example="123456789:ABC-DEF1234ghIkl-zyx57W2v1u" />
 # <UDF name="TELEGRAM_CHAT_ID" Label="Telegram Chat ID" default="" example="Find the value from id inside chat object from https://api.telegram.org/{TELEGRAM_BOT_TOKEN}/getUpdates" />
 # <UDF name="TELEGRAM_SERVER_LABEL" Label="Telegram Server Label" default="Conduit Manager"/>
@@ -59,57 +59,60 @@ export CONTAINER_COUNT="${CONTAINER_COUNT:-1}"
 export TELEGRAM_BOT_TOKEN="${TELEGRAM_BOT_TOKEN:-}"
 export TELEGRAM_CHAT_ID="${TELEGRAM_CHAT_ID:-}"
 export TELEGRAM_SERVER_LABEL="${TELEGRAM_SERVER_LABEL:-}"
+export USE_TELEGRAM="${USE_TELEGRAM:-}"
 
 echo "Configuration:"
 echo "  MAX_CLIENTS: $MAX_CLIENTS"
 echo "  BANDWIDTH: $BANDWIDTH"
 echo "  CONTAINER_COUNT: $CONTAINER_COUNT"
 
-if [ "$Use_Telegram" == "Yes" ] && [ -n "$TELEGRAM_BOT_TOKEN" ]; then
+# Run the installation
+export INSTALL_DIR="/opt/conduit"
+echo "Executing patched conduit.sh..."
+bash conduit.sh --reinstall
+
+echo "Installation complete. Forcing configuration update..."
+
+TELEGRAM_ENABLED_VAL="false"
+if [ "$USE_TELEGRAM" == "Yes" ] && [ -n "$TELEGRAM_BOT_TOKEN" ]; then
+    TELEGRAM_ENABLED_VAL="true"
     echo "  Telegram: Enabled"
-    # Pre-configure settings.conf so conduit.sh picks it up?
-    # Actually, the script reads settings.conf or prompts.
-    # Since we disabled prompts, we should create the settings file mostly *after* install,
-    # OR rely on environment variables if supported.
-    # Looking at `save_settings_install`: It reads existing settings.conf.
-    # It writes variables from memory to settings.conf.
-    # Let's inspect `save_settings_install` logic again from the source...
-    # It uses:
-    # TELEGRAM_BOT_TOKEN="$_tg_token"
-    # where _tg_token is read from settings.conf OR local variable.
-    # The script doesn't seem to support env vars for TELEGRAM_* natively in `main`,
-    # but we can pre-create the settings.conf before running the script!
-    
-    mkdir -p /opt/conduit
-    cat > /opt/conduit/settings.conf <<EOF
-MAX_CLIENTS=$MAX_CLIENTS
-BANDWIDTH=$BANDWIDTH
-CONTAINER_COUNT=$CONTAINER_COUNT
+else
+    echo "  Telegram: Disabled"
+fi
+
+mkdir -p /opt/conduit
+cat > /opt/conduit/settings.conf <<EOF
+MAX_CLIENTS=${MAX_CLIENTS:-200}
+BANDWIDTH=${BANDWIDTH:-5}
+CONTAINER_COUNT=${CONTAINER_COUNT:-1}
 DATA_CAP_GB=0
 DATA_CAP_IFACE=
 DATA_CAP_BASELINE_RX=0
 DATA_CAP_BASELINE_TX=0
 DATA_CAP_PRIOR_USAGE=0
-TELEGRAM_BOT_TOKEN="$TELEGRAM_BOT_TOKEN"
-TELEGRAM_CHAT_ID="$TELEGRAM_CHAT_ID"
+TELEGRAM_BOT_TOKEN="${TELEGRAM_BOT_TOKEN}"
+TELEGRAM_CHAT_ID="${TELEGRAM_CHAT_ID}"
 TELEGRAM_INTERVAL=6
-TELEGRAM_ENABLED=true
+TELEGRAM_ENABLED=${TELEGRAM_ENABLED_VAL}
 TELEGRAM_ALERTS_ENABLED=true
 TELEGRAM_DAILY_SUMMARY=true
 TELEGRAM_WEEKLY_SUMMARY=true
-TELEGRAM_SERVER_LABEL="$TELEGRAM_SERVER_LABEL"
+TELEGRAM_SERVER_LABEL="${TELEGRAM_SERVER_LABEL}"
 TELEGRAM_START_HOUR=0
 EOF
-    chmod 600 /opt/conduit/settings.conf
-    echo "  Pre-configured settings.conf with Telegram details."
-    
-    # Also export INSTALL_DIR to be safe
-    export INSTALL_DIR="/opt/conduit"
-fi
 
-# Run the installation
-echo "Executing patched conduit.sh..."
-bash conduit.sh --reinstall
+chmod 600 /opt/conduit/settings.conf
+echo "Configuration saved to /opt/conduit/settings.conf"
+
+# Restart services to pick up changes
+if command -v systemctl &>/dev/null; then
+    echo "Restarting services..."
+    systemctl restart conduit || true
+    if [ "$TELEGRAM_ENABLED_VAL" == "true" ]; then
+        systemctl restart conduit 2>/dev/null || true
+    fi
+fi
 
 echo "Installation complete!"
 echo "You can manage the conduit by running 'conduit' command as root."
