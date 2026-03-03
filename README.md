@@ -8,6 +8,21 @@ This project contains a Linode StackScript (`conduit-manager.sh`) to automate th
 2.  Deploy a new Linode instance using this StackScript.
 3.  Configure the User Defined Fields (UDFs) such as `MAX_CLIENTS`, `BANDWIDTH`, `CONTAINER_COUNT`, and Telegram settings during deployment.
 
+One-liner:
+```
+curl -fsSL https://raw.githubusercontent.com/hiradnikoo/linode-stackscripts/main/conduit-manager.sh | bash
+
+
+```
+
+One-liner with config:
+```
+MAX_CLIENTS=200 BANDWIDTH=5 CONTAINER_COUNT=1 curl -fsSL https://raw.githubusercontent.com/hiradnikoo/linode-stackscripts/main/conduit-manager.sh | bash
+
+```
+
+
+
 ### Important: Telegram Notifications
 
 If you have enabled Telegram notifications in the configuration, please note that **you may need to manually restart the Telegram service after the server is built** for the bot to start working correctly with your configuration.
