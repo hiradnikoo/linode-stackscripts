@@ -1,6 +1,6 @@
 # Conduit Manager StackScript
 
-## This works on any other VPS apart from Linode as well!
+# This works on any other VPS apart from Linode as well!
 
 
 This project contains a Linode StackScript (`conduit-manager.sh`) to automate the deployment of Psiphon Conduit Manager on Ubuntu servers.
